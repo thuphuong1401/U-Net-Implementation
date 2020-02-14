@@ -1,0 +1,513 @@
+Joshua Baltaza
+Phuong Vu
+
+DSC 381 Homework 5 - Implementation of U-Net
+
+Files included:
+1. cross_entropy_template: code for our implementation of UNet using cross entropy loss
+2. cross_entropy_inference: code for testing our UNet model using cross entropy loss on the test set
+3. dice_loss_template: code for our implementation of UNet using dice loss
+4. dice_loss_inference: code for testing our UNet model using dice loss on the test set
+
+NOTE: if folder Model 1 and Model 2 are present, please delete them before attempting to run the training
+code.
+
+Hyperparamter tuning:
+1. For cross entropy loss:
+- With regards to the loss function, instead of using the conventional cross entropy loss, we use
+binary cross entropy (BCE) loss. We thought that this would perform in a more stable manner than
+the cross entropy one.
+- We tried to tune the learning rate first. At first we tried to have the learning rate to be 1e-5,
+which is relatively small, and as we noticed that the model is converging very slowly (train/valid
+loss did go down, but very slowly). Then we tried 1e-4, and we think it makes the model converge well.
+We did try with 1e-3 and 1e-2, but it seems like those learning rates were too big, because we saw
+that the train/valid loss were oscillating all over the place, not actually going down.
+- During the process of tuning, we tried to have SGD in place of Adam for the optimizer, but at the
+end of the day, they do not make that much of a difference, so utilize either should not affect the
+end result.
+- In terms of batch size, to avoid unexpected CUDA out of memory error (which happens out of our
+control), we decided to go with a batch size of 1.
+- In terms of epoch, we adjusted this figure to whatever we feel fit.
+
+2. For dice loss:
+- With regards to the loss function, we use the Dice Loss written by our instructor
+- This version has roughly the same hyperparameter tuning as the cross entropy one
+
+
+Results:
+1. For cross entropy loss:
+
+First configuration:
+loss function,Binary cross entropy loss
+learning rate,0.0001
+number epochs,5
+batch size,1
+optimizer,Adam
+start time,2019-12-08 13:44:20.178957
+end time,2019-12-08 13:49:36.199126
+
+Result:
+epoch: 0 - (56.822426 seconds)
+	train loss: 0.6185055647045374
+	valid loss: 0.19267362225473972
+	train dice: 0.011104348301887512
+	valid dice: 0.0
+epoch: 1 - (56.63763 seconds)
+	train loss: 0.08188953325152397
+	valid loss: 0.06366139099176167
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 2 - (56.657361 seconds)
+	train loss: 0.05093254605308175
+	valid loss: 0.04245441312743732
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 3 - (56.577518 seconds)
+	train loss: 0.0377913155592978
+	valid loss: 0.03383217109857421
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 4 - (56.56081 seconds)
+	train loss: 0.029327006451785563
+	valid loss: 0.02871725875448588
+	train dice: 0.0
+	valid dice: 0.0
+
+The train loss and the validation loss keeps going down. Thus we increase the number of epochs to see what happens...
+
+
+Here we saw that our model stopped learning, thus we decided to change the learning rate
+
+Third Configuration:
+
+learn_rate = 0.00001
+num_epochs = 10
+batch_size = 1
+optimizer_name = "Adam"
+
+
+
+epoch: 0 - (56.63357 seconds)
+	train loss: 0.7439707398414612
+	valid loss: 0.7395328701588145
+	train dice: 0.020432311296463012
+	valid dice: 0.02054460843404134
+epoch: 1 - (56.593809 seconds)
+	train loss: 0.7349262058734893
+	valid loss: 0.7291689926420736
+	train dice: 0.020432311296463012
+	valid dice: 0.02054460843404134
+epoch: 2 - (56.590362 seconds)
+	train loss: 0.7212929576635361
+	valid loss: 0.710468221826163
+	train dice: 0.020450222492218017
+	valid dice: 0.016697717340368973
+epoch: 3 - (56.620746 seconds)
+	train loss: 0.6740210324525833
+	valid loss: 0.5335537552484992
+	train dice: 0.002344051003456116
+	valid dice: 0.0
+epoch: 4 - (56.663225 seconds)
+	train loss: 0.19521981235593558
+	valid loss: 0.09308815158206468
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 5 - (56.816238 seconds)
+	train loss: 0.07357501853257417
+	valid loss: 0.06562494480034761
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 6 - (56.656037 seconds)
+	train loss: 0.06375276409089566
+	valid loss: 0.06360893215090908
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 7 - (56.60084 seconds)
+	train loss: 0.06093815565109253
+	valid loss: 0.05860817154640691
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 8 - (56.630457 seconds)
+	train loss: 0.05699109109118581
+	valid loss: 0.05546243862406901
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 9 - (56.626689 seconds)
+	train loss: 0.053062770329415795
+	valid loss: 0.051218004123857845
+	train dice: 0.0
+	valid dice: 0.0
+
+
+Here we did see that the training loss was decreasing but we did want to see how the batch size affected the results.
+
+
+Fourth Configuration:
+
+learn_rate = 0.0001
+num_epochs = 10
+batch_size = 3
+optimizer_name = "Adam"
+
+
+epoch: 0 - (54.624246 seconds)
+	train loss: 0.6864922898156303
+	valid loss: 0.6729174779172529
+	train dice: 0.0035824435097830637
+	valid dice: 0.0
+epoch: 1 - (54.203942 seconds)
+	train loss: 0.6510126761027745
+	valid loss: 0.5924184928860581
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 2 - (54.205018 seconds)
+	train loss: 0.3550297926579203
+	valid loss: 0.11980139032790535
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 3 - (54.187913 seconds)
+	train loss: 0.12827153929642268
+	valid loss: 0.07229100716741461
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 4 - (54.20383 seconds)
+	train loss: 0.0980152455823762
+	valid loss: 0.06943255329602643
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 5 - (54.221009 seconds)
+	train loss: 0.07441952877811023
+	valid loss: 0.06481910679946866
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 6 - (54.23903 seconds)
+	train loss: 0.06540311819740705
+	valid loss: 0.062234644729055856
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 7 - (54.190166 seconds)
+	train loss: 0.05905284413269588
+	valid loss: 0.05666354331269599
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 8 - (54.214587 seconds)
+	train loss: 0.05429232120513916
+	valid loss: 0.05167862152059873
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 9 - (54.263524 seconds)
+	train loss: 0.04914009890386036
+	valid loss: 0.0459638086980895
+	train dice: 0.0
+	valid dice: 0.0
+
+
+Fifth Configurations
+
+learn_rate = 0.00001
+num_epochs = 10
+batch_size = 3
+optimizer_name = "Adam"
+
+
+
+epoch: 0 - (54.565589 seconds)
+	train loss: 0.6777381726673671
+	valid loss: 0.6765616316544382
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 1 - (54.198662 seconds)
+	train loss: 0.6757456915719169
+	valid loss: 0.6746345517928141
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 2 - (54.196395 seconds)
+	train loss: 0.6738029292651585
+	valid loss: 0.6728117330032483
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 3 - (54.205659 seconds)
+	train loss: 0.6719023840767997
+	valid loss: 0.6708532927329081
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 4 - (54.156754 seconds)
+	train loss: 0.6698043176106044
+	valid loss: 0.6686933866718359
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 5 - (54.230145 seconds)
+	train loss: 0.6674965790339878
+	valid loss: 0.6662423715256808
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 6 - (54.222833 seconds)
+	train loss: 0.66485938004085
+	valid loss: 0.6634395143441987
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 7 - (54.387251 seconds)
+	train loss: 0.6617653455053057
+	valid loss: 0.6600656038836429
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 8 - (54.212808 seconds)
+	train loss: 0.6580585411616734
+	valid loss: 0.6560777195712977
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 9 - (54.190929 seconds)
+	train loss: 0.653540815625872
+	valid loss: 0.6504480378669605
+	train dice: 0.0
+	valid dice: 0.0
+
+
+
+
+From our results we do see that at lower learning rates and with a batch size greater than one our model trains way to slowly, and thus we decided to change our learning rate slowly.
+
+Sixth Configuration:
+learn_rate = 0.00009
+num_epochs = 10
+batch_size = 3
+optimizer_name = "Adam"
+
+epoch: 0 - (54.853999 seconds)
+	train loss: 0.7163161890847343
+	valid loss: 0.7030498584111532
+	train dice: 0.020474587168012346
+	valid dice: 0.00864903027551216
+epoch: 1 - (54.186576 seconds)
+	train loss: 0.6855757236480713
+	valid loss: 0.6463761204167416
+	train dice: 0.0008580344063895089
+	valid dice: 0.0
+epoch: 2 - (54.188595 seconds)
+	train loss: 0.4178299073662077
+	valid loss: 0.2716721047957738
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 3 - (54.192785 seconds)
+	train loss: 0.2164881569998605
+	valid loss: 0.12095977287543447
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 4 - (54.177222 seconds)
+	train loss: 0.10755061038902827
+	valid loss: 0.09507675815308303
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 5 - (54.175935 seconds)
+	train loss: 0.07866770454815455
+	valid loss: 0.07093029626105961
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 6 - (54.210953 seconds)
+	train loss: 0.06334717678172248
+	valid loss: 0.06125254367004361
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 7 - (54.190932 seconds)
+	train loss: 0.05659354105591774
+	valid loss: 0.052931408218124455
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 8 - (54.20525 seconds)
+	train loss: 0.05044834688305855
+	valid loss: 0.04808301677960053
+	train dice: 0.0
+	valid dice: 0.0
+epoch: 9 - (54.175484 seconds)
+	train loss: 0.04675708657928875
+	valid loss: 0.04343173518907605
+	train dice: 0.0
+	valid dice: 0.0
+
+Seventh configurations:
+loss function,Binary cross entropy loss
+learning rate,0.0001
+number epochs,50
+batch size,1
+optimizer,Adam
+start time,2019-12-09 14:27:20.986263
+end time,2019-12-09 15:30:05.910658
+
+train loss: 0.006268266425468028
+valid loss: 0.03584712015176247
+train dice: 0.8570257931947708
+valid dice: 0.5430945105719984
+
+These parameters proved to be the best for this system and thus we used them to train our model and then test them.
+
+Final training:
+
+learn_rate = 0.00009
+num_epochs = 20
+batch_size = 3
+optimizer_name = "Adam"
+
+epoch: 0 - (603.587122 seconds)
+	train loss: 0.0795207837491227
+	valid loss: 0.016958490798347874
+	train dice: 0.16507122520844422
+	valid dice: 0.6137623075853315
+epoch: 1 - (603.008774 seconds)
+	train loss: 0.015950761222060073
+	valid loss: 0.011954933331397018
+	train dice: 0.664013689271974
+	valid dice: 0.7361469697533992
+epoch: 2 - (602.146834 seconds)
+	train loss: 0.013848414091729022
+	valid loss: 0.01209339291151417
+	train dice: 0.7207623277873116
+	valid dice: 0.7552901997900846
+epoch: 3 - (600.592728 seconds)
+	train loss: 0.011673726786467718
+	valid loss: 0.011325975945382788
+	train dice: 0.7601438486955191
+	valid dice: 0.7443619684169167
+epoch: 4 - (599.599319 seconds)
+	train loss: 0.010747875560851695
+	valid loss: 0.01093971774210794
+	train dice: 0.7795657601878837
+	valid dice: 0.7775304662553888
+epoch: 5 - (599.897904 seconds)
+	train loss: 0.011259532056406615
+	valid loss: 0.009966118735048855
+	train dice: 0.7730980806131666
+	valid dice: 0.7872457838895028
+epoch: 6 - (599.7366 seconds)
+	train loss: 0.01018093443432882
+	valid loss: 0.009253190013400296
+	train dice: 0.7884443922514629
+	valid dice: 0.7959245830251459
+epoch: 7 - (599.912245 seconds)
+	train loss: 0.009516152054690113
+	valid loss: 0.00933901108637975
+	train dice: 0.8002600604569533
+	valid dice: 0.8000546442834955
+epoch: 8 - (599.928259 seconds)
+	train loss: 0.009276681693185239
+	valid loss: 0.008741940020403842
+	train dice: 0.8084672179744438
+	valid dice: 0.8123465828728258
+epoch: 9 - (599.94279 seconds)
+	train loss: 0.009170381969347755
+	valid loss: 0.008656078312349947
+	train dice: 0.8081583277496769
+	valid dice: 0.8151778557844329
+epoch: 10 - (599.915131 seconds)
+	train loss: 0.009201907317479907
+	valid loss: 0.009053332518720836
+	train dice: 0.8081176295718541
+	valid dice: 0.8101269362265604
+epoch: 11 - (600.232149 seconds)
+	train loss: 0.008883189770323964
+	valid loss: 0.0086553891990007
+	train dice: 0.8135295447106917
+	valid dice: 0.8185248981442368
+epoch: 12 - (600.666697 seconds)
+	train loss: 0.008772370239305096
+	valid loss: 0.009307908907271269
+	train dice: 0.816219509069153
+	valid dice: 0.8140598525080764
+epoch: 13 - (600.39502 seconds)
+	train loss: 0.008616305519119169
+	valid loss: 0.009707210373068065
+	train dice: 0.8192729120119722
+	valid dice: 0.8029847239193163
+epoch: 14 - (600.251617 seconds)
+	train loss: 0.0086635660228744
+	valid loss: 0.009643092857706443
+	train dice: 0.8195477717756804
+	valid dice: 0.7927406200191431
+epoch: 15 - (600.149839 seconds)
+	train loss: 0.008371317352731004
+	valid loss: 0.008700892378232981
+	train dice: 0.8234617486859379
+	valid dice: 0.8136302504623145
+epoch: 16 - (600.228864 seconds)
+	train loss: 0.00845370572323618
+	valid loss: 0.009520267365140873
+	train dice: 0.8221953983020446
+	valid dice: 0.8112109763580456
+epoch: 17 - (600.28174 seconds)
+	train loss: 0.008673159698478535
+	valid loss: 0.008915832445940427
+	train dice: 0.8201130013583827
+	valid dice: 0.8215130442067197
+epoch: 18 - (599.977142 seconds)
+	train loss: 0.008029019002647998
+	valid loss: 0.008638882927857992
+	train dice: 0.8323498833727079
+	valid dice: 0.81332007102799
+epoch: 19 - (600.277564 seconds)
+	train loss: 0.007921543605823082
+	valid loss: 0.008692845906408732
+	train dice: 0.8337762395821696
+	valid dice: 0.8125432897032353
+
+
+Only use test set until the very end!
+Loss = 0.008872
+Dice = 0.790925
+
+-----------------------------------------------------------------------------------------
+
+
+2. For dice loss:
+First configurations:
+loss function,Dice Loss
+learning rate,0.0001
+number epochs,70
+batch size,1
+optimizer,Adam
+start time,2019-12-08 14:46:53.616695
+end time,2019-12-08 15:57:02.413761
+
+Result:
+train loss: 0.29930023550987245
+valid loss: 0.44632618155395776
+train dice: 0.7006997644901276
+valid dice: 0.5536738184460422
+
+
+Second configurations:
+loss function,Dice Loss
+learning rate,0.0001
+number epochs,150
+batch size,1
+optimizer,Adam
+start time,2019-12-08 16:03:59.746362
+nd time,2019-12-08 18:35:48.859069
+
+Result:
+train loss: 0.8305239796638488
+valid loss: 0.7736924691506993
+train dice: 0.1694760203361511
+valid dice: 0.22630753084930064
+
+
+Third configurations:
+loss function,Dice Loss
+learning rate,0.0001
+number epochs,20
+batch size,1
+optimizer,0.0001
+start time,2019-12-09 08:36:18.212500
+end time,2019-12-09 13:00:56.884278
+
+Result:
+train loss: 0.2987406996764102
+valid loss: 0.2312865497773154
+train dice: 0.7012593003235897
+valid dice: 0.7687134502226847
+
+And result on the test set (using the third configurations):
+Loss = 0.23234469392924634
+Dice  = 0.7676553060707537
+
+I personally think this result is fairly decent when applied to the test set. 
+
+
